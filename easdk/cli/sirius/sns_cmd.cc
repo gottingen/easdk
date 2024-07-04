@@ -19,6 +19,7 @@
 #include <easdk/cli/sirius/sns_cmd.h>
 #include <easdk/cli/sirius/app_cmd.h>
 #include <easdk/cli/sirius/zone_cmd.h>
+#include <easdk/cli/sirius/mock.h>
 #include <collie/strings/format.h>
 
 namespace easdk::cli {
@@ -28,6 +29,7 @@ namespace easdk::cli {
         sns_cmd->callback([sns_cmd]() { run_sns_cmd(sns_cmd); });
         setup_app_cmd(*sns_cmd);
         setup_zone_cmd(*sns_cmd);
+        DiscoveryCmd::setup_discovery_cmd(*sns_cmd);
     }
 
     void SnsCmd::run_sns_cmd(turbo::cli::App *app) {
