@@ -57,26 +57,17 @@ namespace easdk::cli {
         auto *add_parameters_inputs = dai->add_option_group("parameters_inputs", "config input from parameters");
         auto *add_json_inputs = dai->add_option_group("json_inputs", "config input source from json format");
         add_parameters_inputs->add_option("-n,--app", opt->app_name, "app name")->required();
-        add_parameters_inputs->add_option("-z,--zone", opt->zone_name, "zone name")->required();
-        add_parameters_inputs->add_option("-s,--servlet", opt->servlet_name, "servlet name")->required();
-        add_parameters_inputs->add_option("-a, --address", opt->address, "instance address")->required();
-        add_parameters_inputs->add_option("-e, --env", opt->env, "instance env")->required();
-        add_parameters_inputs->add_option("-c, --color", opt->color, "instance color")->default_val("default");
+        add_parameters_inputs->add_option("-z,--zone", opt->zones, "zone name")->required();
+        add_parameters_inputs->add_option("-s,--servlet", opt->servlet_name, "servlet name")->default_val("sorter");
+        add_parameters_inputs->add_option("-a, --address", opt->address, "instance address")->default_val("192.168.8.6");
+        add_parameters_inputs->add_option("-e, --env", opt->envs, "instance env");
+        add_parameters_inputs->add_option("-c, --color", opt->colors, "instance color");
         add_parameters_inputs->add_option("-t, --status", opt->status, "instance color")->default_val("NORMAL");
-        add_parameters_inputs->add_option("-f, --fiber", opt->fibers, "instance color")->default_val(10);
+        add_parameters_inputs->add_option("-f, --fiber", opt->fibers, "instance color")->default_val(50);
         add_json_inputs->add_option("-j, --json", opt->json_file, "json input file")->required(true);
         dai->require_option(1);
         dai->callback([]() { run_mock_instance_cmd(); });
 
-        /*
-        auto di = discovery_cmd->add_subcommand("naming", "info instance");
-        di->add_option("-n,--app", opt->app_name, "app name")->required();
-        di->add_option("-z,--zone", opt->zones, "zone name")->required();
-        di->add_option("-e,--env", opt->envs, "env name")->required();
-        di->add_option("-c, --color", opt->colors, "color")->required();
-        di->add_option("-t, --status", opt->status, "instance status")->default_val("NORMAL");
-        di->callback([]() { run_discovery_info_instance_cmd(); });
-        */
 
         auto dd = discovery_cmd->add_subcommand("dump", " dump instance example to json file");
         dd->add_option("-o,--output", opt->dump_file, "dump file path")->default_val("example_discovery.json");
@@ -99,13 +90,18 @@ namespace easdk::cli {
     static void* run_mock(bool& stop) {
         auto ctx = DiscoveryOptionContext::get_instance();
 
+        auto opt = DiscoveryOptionContext::get_instance();
         melon::SnsPeer instance;
         instance.set_app_name(ctx->app_name);
-        instance.set_zone(ctx->zone_name);
+        auto index = turbo::Uniform(opt->gen, 0u, opt->zones.size());
+
+        instance.set_zone(ctx->zones[index]);
         auto i = seq_id();
         instance.set_servlet_name(ctx->servlet_name + collie::to_str(i));
-        instance.set_env(ctx->env);
-        instance.set_color(ctx->color);
+        index = turbo::Uniform(opt->gen, 0u, opt->envs.size());
+        instance.set_env(ctx->envs[index]);
+        index = turbo::Uniform(opt->gen, 0u, ctx->colors.size());
+        instance.set_color(ctx->colors[index]);
         instance.set_status(melon::PeerStatus::NORMAL);
         instance.set_address(ctx->address);
         melon::naming::SnsNamingClient sns_naming;
@@ -136,12 +132,16 @@ namespace easdk::cli {
         for (size_t i = 0; i < ctx->fibers; i++) {
             auto &instance = instances[i];
             instance.set_app_name(ctx->app_name);
-            instance.set_zone(ctx->zone_name);
+            auto index = turbo::Uniform(ctx->gen, 0u, ctx->zones.size());
+            instance.set_zone(ctx->zones[index]);
             instance.set_servlet_name(ctx->servlet_name + collie::to_str(i));
-            instance.set_env(ctx->env);
-            instance.set_color(ctx->color);
+            index = turbo::Uniform(ctx->gen, 0u, ctx->envs.size());
+            instance.set_env(ctx->envs[index]);
+            index = turbo::Uniform(ctx->gen, 0u, ctx->colors.size());
+            instance.set_color(ctx->colors[index]);
             instance.set_status(melon::PeerStatus::NORMAL);
             instance.set_address(ctx->address);
+            LOG(INFO)<< instance.ShortDebugString();
             clients[i] = std::make_unique<melon::naming::SnsNamingClient>();
             auto rs = clients[i]->register_peer(instance);
             if (rs != 0) {

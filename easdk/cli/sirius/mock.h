@@ -29,6 +29,7 @@
 #include <string>
 #include <easdk/api/config_watcher.h>
 #include <melon/naming/sns_naming_service.h>
+#include <turbo/random/random.h>
 
 namespace easdk::cli {
 
@@ -42,18 +43,16 @@ namespace easdk::cli {
         // for config
         std::string app_name;
         std::string servlet_name;
-        std::string zone_name;
-        std::string env;
-        std::string color;
         std::string status;
         std::string address;
         std::string dump_file;
         std::string json_file;
         std::vector<std::string> zones;
-        std::vector<std::string> colors;
-        std::vector<std::string> envs;
-        uint32_t    fibers{10};
+        std::vector<std::string> colors{"red", "blue", "green"};
+        std::vector<std::string> envs{"prd", "dev", "test"};
+        uint32_t    fibers;
         bool quiet{false};
+        turbo::BitGen gen;
     };
 
     struct DiscoveryCmd {
