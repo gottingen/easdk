@@ -38,17 +38,17 @@ namespace easdk::sirius {
             return turbo::OkStatus();
         }
         std::error_code ec;
-        if(!alkaid::filesystem::exists(_cache_dir, ec)) {
-            if(ec) {
-                return turbo::already_exists_error("check cache dir error");
-            }
-            alkaid::filesystem::create_directories(_cache_dir);
+        RESULT_ASSIGN_OR_RETURN(auto ext, alkaid::exists(_cache_dir));
+        if(!ext) {
+            RESULT_ASSIGN_OR_RETURN(auto ct, alkaid::create_directories(_cache_dir));
+            _init = true;
             return turbo::OkStatus();
         }
-        alkaid::filesystem::directory_iterator dir_itr(_cache_dir);
-        alkaid::filesystem::directory_iterator end;
-        for(;dir_itr != end; ++dir_itr) {
+
+        alkaid::DirectoryIterator dir_itr(_cache_dir);
+        while(dir_itr) {
             if(dir_itr->path() == "." || dir_itr->path() == "..") {
+                ++dir_itr;
                 continue;
             }
             auto file_path = dir_itr->path().string();
@@ -59,6 +59,7 @@ namespace easdk::sirius {
             }
             do_add_config(info);
             LOG(INFO) << "loading config cache file:" << file_path;
+            ++dir_itr;
         }
         _init = true;
         return turbo::OkStatus();
@@ -253,8 +254,7 @@ namespace easdk::sirius {
             return turbo::OkStatus();
         }
         auto file_path = make_cache_file_path(dir, config);
-        alkaid::filesystem::remove(file_path);
-        return turbo::OkStatus();
+        return alkaid::remove(file_path).status();
     }
 
     std::string ConfigCache::make_cache_file_path(const std::string &dir, const eapi::sirius::ConfigInfo &config) {

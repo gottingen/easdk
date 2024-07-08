@@ -20,7 +20,8 @@ gottingen/carbin-recipes@ea
 
 #########################
 # testing tools googlegtest benchmark
-testing
-gottingen/melon@release-0.6.1.0 -DCARBIN_BUILD_TEST=OFF -DCARBIN_BUILD_BENCHMARK=OFF -DCARBIN_BUILD_EXAMPLES=OFF
-gottingen/eapi@release-0.2.0 -DCARBIN_BUILD_TEST=OFF -DCARBIN_BUILD_BENCHMARK=OFF -DCARBIN_BUILD_EXAMPLES=OFF
-gottingen/alkaid@v0.1.7 -DCARBIN_BUILD_TEST=OFF -DCARBIN_BUILD_BENCHMARK=OFF -DCARBIN_BUILD_EXAMPLES=OFF
+testing/googletest
+testing/benchmark
+ea/melon
+ea/alkaid
+ea/eapi

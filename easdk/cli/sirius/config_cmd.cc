@@ -356,11 +356,11 @@ namespace easdk::cli {
         }
         if (opt->clean_local) {
             collie::println("remove local config cache dir:{}", opt->config_watch_dir);
-            alkaid::filesystem::remove_all(opt->config_watch_dir);
+            (void)alkaid::remove_all(opt->config_watch_dir);
         }
 
-        if (!alkaid::filesystem::exists(opt->config_watch_dir)) {
-            alkaid::filesystem::create_directories(opt->config_watch_dir);
+        if (!alkaid::exists(opt->config_watch_dir).value()) {
+            (void)alkaid::create_directories(opt->config_watch_dir);
         }
         if (!rs.ok()) {
             collie::println("watch error:{}", rs.to_string());
@@ -420,7 +420,7 @@ namespace easdk::cli {
     ConfigCmd::save_config_to_file(const std::string &basedir, const easdk::ConfigCallbackData &data) {
         std::string file_name = collie::format("{}/{}-{}.{}.{}.{}", basedir, data.config_name, data.new_version.major,
                                                data.new_version.minor, data.new_version.patch, data.type);
-        if (alkaid::filesystem::exists(file_name)) {
+        if (alkaid::exists(file_name).value()) {
             return turbo::already_exists_error(turbo::substitute("write file [$0] already exists", file_name));
         }
         auto lfs = alkaid::Filesystem::localfs();
