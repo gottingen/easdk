@@ -49,11 +49,23 @@ carbin_cc_object(
         CXXOPTS
         ${CARBIN_CXX_OPTIONS}
 )
+file(GLOB_RECURSE KUMO_SRCS "kumo/*.cc")
+
+carbin_cc_object(
+        NAMESPACE easdk
+        NAME kumo_obj
+        SOURCES
+        ${KUMO_SRCS}
+        CXXOPTS
+        ${CARBIN_CXX_OPTIONS}
+)
+
+
 
 carbin_cc_library(
         NAMESPACE easdk
         NAME easdk
-        OBJECTS utility_obj sirius_obj api_obj
+        OBJECTS utility_obj sirius_obj api_obj kumo_obj
         CXXOPTS
         ${CARBIN_CXX_OPTIONS}
         PLINKS

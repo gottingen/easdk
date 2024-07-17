@@ -25,3 +25,4 @@ testing/benchmark
 ea/melon
 ea/alkaid
 ea/eapi
+inf/mariadb

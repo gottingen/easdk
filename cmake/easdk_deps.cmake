@@ -39,6 +39,9 @@ find_package(Threads REQUIRED)
 find_package(melon REQUIRED)
 find_package(eapi REQUIRED)
 find_package(alkaid REQUIRED)
+message(STATUS "melon include dir: ${melon_INCLUDE_DIR}")
+get_filename_component(CARBIN_LIB_DIR ${melon_INCLUDE_DIR} DIRECTORY)
+set(MARIADB_LIB "${CARBIN_LIB_DIR}/lib/mariadb/libmariadbclient.a")
 ############################################################
 #
 # add you libs to the CARBIN_DEPS_LINK variable eg as turbo
@@ -50,6 +53,7 @@ set(CARBIN_DEPS_LINK
         ${MELON_STATIC_LIBRARIES}
         eapi::proto_static
         alkaid::alkaid_static
+        ${MARIADB_LIB}
         ${CARBIN_SYSTEM_DYLINK}
         )
 list(REMOVE_DUPLICATES CARBIN_DEPS_LINK)
